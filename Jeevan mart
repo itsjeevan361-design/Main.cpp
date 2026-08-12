@@ -1,0 +1,643 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <iomanip>
+#include <algorithm>
+#include <limits>
+
+using namespace std;
+
+struct Product {
+    int id;
+    string name;
+    string category;
+    double price;
+    double oldPrice;
+    double rating;
+};
+
+struct CartItem {
+    Product product;
+    int quantity;
+};
+
+struct User {
+    string name;
+    string email;
+    string phone;
+    string password;
+};
+
+vector<Product> products = {
+
+    {1, "Smartphone Pro 5G", "electronics", 14999, 19999, 4.4},
+    {2, "Wireless Bluetooth Headphones", "electronics", 1299, 2999, 4.3},
+    {3, "Premium Smart Watch", "electronics", 2499, 4999, 4.5},
+    {4, "Men's Casual T-Shirt", "fashion", 499, 999, 4.2},
+    {5, "Women's Fashion Dress", "fashion", 899, 1999, 4.4},
+    {6, "Running Sports Shoes", "sports", 1199, 2499, 4.5},
+    {7, "Modern Table Lamp", "home", 699, 1299, 4.1},
+    {8, "Comfortable Sofa Cushion", "home", 399, 799, 4.2},
+    {9, "Face Care Beauty Kit", "beauty", 599, 1199, 4.3},
+    {10, "Premium Coffee Maker", "home", 2299, 3999, 4.6},
+    {11, "Fresh Grocery Combo", "grocery", 799, 1099, 4.4},
+    {12, "Professional Cricket Bat", "sports", 1599, 2999, 4.5},
+    {13, "Kids Building Blocks", "toys", 499, 999, 4.6},
+    {14, "Portable Bluetooth Speaker", "electronics", 999, 1999, 4.4},
+    {15, "Laptop Backpack", "fashion", 699, 1499, 4.3}
+
+};
+
+User user;
+bool registered = false;
+vector<CartItem> cart;
+
+
+/* =========================
+   REGISTER
+========================= */
+
+void registerUser() {
+
+    cout << "\n====================================\n";
+    cout << "       JEEVAN_MART REGISTER\n";
+    cout << "====================================\n";
+
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    cout << "Enter your name: ";
+    getline(cin, user.name);
+
+    cout << "Enter email: ";
+    getline(cin, user.email);
+
+    cout << "Enter phone number: ";
+    getline(cin, user.phone);
+
+    cout << "Create password: ";
+    getline(cin, user.password);
+
+    if (user.password.length() < 6) {
+        cout << "\nPassword must contain at least 6 characters.\n";
+        return;
+    }
+
+    registered = true;
+
+    cout << "\nAccount created successfully! 🎉\n";
+}
+
+
+/* =========================
+   LOGIN
+========================= */
+
+bool loginUser() {
+
+    if (!registered) {
+
+        cout << "\nNo account found.\n";
+        cout << "Please create an account first.\n";
+
+        return false;
+    }
+
+    string loginValue;
+    string password;
+
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    cout << "\n====================================\n";
+    cout << "          JEEVAN_MART LOGIN\n";
+    cout << "====================================\n";
+
+    cout << "Email or Phone: ";
+    getline(cin, loginValue);
+
+    cout << "Password: ";
+    getline(cin, password);
+
+    if (
+        (loginValue == user.email ||
+         loginValue == user.phone)
+        &&
+        password == user.password
+    ) {
+
+        cout << "\nLogin successful! 🎉\n";
+        cout << "Welcome, " << user.name << "!\n";
+
+        return true;
+    }
+
+    cout << "\nIncorrect email/phone or password.\n";
+
+    return false;
+}
+
+
+/* =========================
+   DISPLAY PRODUCTS
+========================= */
+
+void displayProducts(vector<Product> list = products) {
+
+    cout << "\n============================================================\n";
+    cout << "                    JEEVAN_MART PRODUCTS\n";
+    cout << "============================================================\n";
+
+    if (list.empty()) {
+
+        cout << "No products found.\n";
+        return;
+    }
+
+    for (const auto& p : list) {
+
+        cout << "\nID       : " << p.id;
+        cout << "\nProduct  : " << p.name;
+        cout << "\nCategory : " << p.category;
+        cout << "\nPrice    : ₹" << fixed << setprecision(2) << p.price;
+        cout << "\nMRP      : ₹" << p.oldPrice;
+        cout << "\nRating   : ⭐ " << p.rating;
+
+        int discount =
+            static_cast<int>(
+                ((p.oldPrice - p.price) / p.oldPrice) * 100
+            );
+
+        cout << "\nDiscount : " << discount << "% OFF";
+
+        cout << "\n----------------------------------------\n";
+    }
+}
+
+
+/* =========================
+   SEARCH
+========================= */
+
+void searchProducts() {
+
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    string query;
+
+    cout << "\nEnter product name or category: ";
+    getline(cin, query);
+
+    transform(
+        query.begin(),
+        query.end(),
+        query.begin(),
+        ::tolower
+    );
+
+    vector<Product> results;
+
+    for (const auto& p : products) {
+
+        string name = p.name;
+        string category = p.category;
+
+        transform(
+            name.begin(),
+            name.end(),
+            name.begin(),
+            ::tolower
+        );
+
+        if (
+            name.find(query) != string::npos ||
+            category.find(query) != string::npos
+        ) {
+
+            results.push_back(p);
+        }
+    }
+
+    displayProducts(results);
+}
+
+
+/* =========================
+   CATEGORY
+========================= */
+
+void filterCategory() {
+
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    string category;
+
+    cout << "\nEnter category:\n";
+    cout << "electronics\n";
+    cout << "fashion\n";
+    cout << "home\n";
+    cout << "beauty\n";
+    cout << "grocery\n";
+    cout << "sports\n";
+    cout << "toys\n";
+
+    cout << "\nCategory: ";
+    getline(cin, category);
+
+    transform(
+        category.begin(),
+        category.end(),
+        category.begin(),
+        ::tolower
+    );
+
+    vector<Product> results;
+
+    for (const auto& p : products) {
+
+        if (p.category == category) {
+            results.push_back(p);
+        }
+    }
+
+    displayProducts(results);
+}
+
+
+/* =========================
+   FIND PRODUCT
+========================= */
+
+Product* findProduct(int id) {
+
+    for (auto& p : products) {
+
+        if (p.id == id) {
+            return &p;
+        }
+    }
+
+    return nullptr;
+}
+
+
+/* =========================
+   ADD TO CART
+========================= */
+
+void addToCart() {
+
+    int id;
+
+    cout << "\nEnter product ID: ";
+    cin >> id;
+
+    Product* product = findProduct(id);
+
+    if (product == nullptr) {
+
+        cout << "\nProduct not found.\n";
+        return;
+    }
+
+    for (auto& item : cart) {
+
+        if (item.product.id == id) {
+
+            item.quantity++;
+
+            cout << "\nProduct quantity increased.\n";
+
+            return;
+        }
+    }
+
+    cart.push_back({
+        *product,
+        1
+    });
+
+    cout << "\n";
+    cout << product->name;
+    cout << " added to cart! 🛒\n";
+}
+
+
+/* =========================
+   VIEW CART
+========================= */
+
+void viewCart() {
+
+    cout << "\n====================================\n";
+    cout << "             MY CART 🛒\n";
+    cout << "====================================\n";
+
+    if (cart.empty()) {
+
+        cout << "Your cart is empty.\n";
+        return;
+    }
+
+    double total = 0;
+
+    for (const auto& item : cart) {
+
+        double itemTotal =
+            item.product.price * item.quantity;
+
+        cout << "\nProduct : "
+             << item.product.name;
+
+        cout << "\nPrice   : ₹"
+             << item.product.price;
+
+        cout << "\nQuantity: "
+             << item.quantity;
+
+        cout << "\nSubtotal: ₹"
+             << itemTotal;
+
+        cout << "\n------------------------------------\n";
+
+        total += itemTotal;
+    }
+
+    cout << "\nTOTAL: ₹"
+         << fixed
+         << setprecision(2)
+         << total
+         << "\n";
+}
+
+
+/* =========================
+   CHANGE QUANTITY
+========================= */
+
+void changeQuantity() {
+
+    if (cart.empty()) {
+
+        cout << "\nYour cart is empty.\n";
+        return;
+    }
+
+    int id;
+    int quantity;
+
+    cout << "\nEnter product ID: ";
+    cin >> id;
+
+    for (auto& item : cart) {
+
+        if (item.product.id == id) {
+
+            cout << "Enter new quantity: ";
+            cin >> quantity;
+
+            if (quantity <= 0) {
+
+                cout << "\nInvalid quantity.\n";
+                return;
+            }
+
+            item.quantity = quantity;
+
+            cout << "\nQuantity updated.\n";
+
+            return;
+        }
+    }
+
+    cout << "\nProduct not found in cart.\n";
+}
+
+
+/* =========================
+   REMOVE FROM CART
+========================= */
+
+void removeFromCart() {
+
+    if (cart.empty()) {
+
+        cout << "\nYour cart is empty.\n";
+        return;
+    }
+
+    int id;
+
+    cout << "\nEnter product ID to remove: ";
+    cin >> id;
+
+    for (
+        auto it = cart.begin();
+        it != cart.end();
+        ++it
+    ) {
+
+        if (it->product.id == id) {
+
+            cart.erase(it);
+
+            cout << "\nProduct removed from cart.\n";
+
+            return;
+        }
+    }
+
+    cout << "\nProduct not found.\n";
+}
+
+
+/* =========================
+   CHECKOUT
+========================= */
+
+void checkout() {
+
+    if (cart.empty()) {
+
+        cout << "\nYour cart is empty!\n";
+        return;
+    }
+
+    double total = 0;
+
+    for (const auto& item : cart) {
+
+        total +=
+            item.product.price *
+            item.quantity;
+    }
+
+    cout << "\n====================================\n";
+    cout << "            ORDER SUMMARY\n";
+    cout << "====================================\n";
+
+    cout << "Customer : "
+         << user.name
+         << "\n";
+
+    cout << "Total    : ₹"
+         << fixed
+         << setprecision(2)
+         << total
+         << "\n";
+
+    cout << "\nThank you for shopping with\n";
+    cout << "Jeevan_mart! 🎉\n";
+
+    cout << "\nOrder placed successfully!\n";
+
+    cart.clear();
+}
+
+
+/* =========================
+   ACCOUNT
+========================= */
+
+void showAccount() {
+
+    cout << "\n====================================\n";
+    cout << "             MY ACCOUNT\n";
+    cout << "====================================\n";
+
+    cout << "Name  : " << user.name << "\n";
+    cout << "Email : " << user.email << "\n";
+    cout << "Phone : " << user.phone << "\n";
+}
+
+
+/* =========================
+   SHOP MENU
+========================= */
+
+void shopMenu() {
+
+    int choice;
+
+    do {
+
+        cout << "\n\n";
+        cout << "====================================\n";
+        cout << "          🛍️ JEEVAN_MART\n";
+        cout << "====================================\n";
+
+        cout << "1. View All Products\n";
+        cout << "2. Search Products\n";
+        cout << "3. Browse Category\n";
+        cout << "4. Add Product to Cart\n";
+        cout << "5. View Cart\n";
+        cout << "6. Change Quantity\n";
+        cout << "7. Remove Product from Cart\n";
+        cout << "8. Checkout\n";
+        cout << "9. My Account\n";
+        cout << "10. Logout\n";
+
+        cout << "\nEnter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+
+            case 1:
+                displayProducts();
+                break;
+
+            case 2:
+                searchProducts();
+                break;
+
+            case 3:
+                filterCategory();
+                break;
+
+            case 4:
+                addToCart();
+                break;
+
+            case 5:
+                viewCart();
+                break;
+
+            case 6:
+                changeQuantity();
+                break;
+
+            case 7:
+                removeFromCart();
+                break;
+
+            case 8:
+                checkout();
+                break;
+
+            case 9:
+                showAccount();
+                break;
+
+            case 10:
+                cout << "\nLogged out successfully.\n";
+                break;
+
+            default:
+                cout << "\nInvalid choice. Try again.\n";
+        }
+
+    } while (choice != 10);
+}
+
+
+/* =========================
+   MAIN
+========================= */
+
+int main() {
+
+    int choice;
+
+    cout << "\n";
+    cout << "========================================\n";
+    cout << "          🛍️ WELCOME TO\n";
+    cout << "             JEEVAN_MART\n";
+    cout << "========================================\n";
+
+    do {
+
+        cout << "\n";
+        cout << "1. Register\n";
+        cout << "2. Login\n";
+        cout << "3. Exit\n";
+
+        cout << "\nEnter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+
+            case 1:
+                registerUser();
+                break;
+
+            case 2:
+
+                if (loginUser()) {
+                    shopMenu();
+                }
+
+                break;
+
+            case 3:
+
+                cout << "\nThank you for visiting Jeevan_mart! 👋\n";
+
+                break;
+
+            default:
+
+                cout << "\nInvalid choice.\n";
+        }
+
+    } while (choice != 3);
+
+    return 0;
+}
